@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermodynamic Work Calculator</title>
+    <style>
+        body { background-image: url('chem.jpg'); background-size: cover; background-repeat: no-repeat; background-attachment: fixed; 
+            font-family: Arial, sans-serif; margin: 20px; }
+        .container { background-color:antiquewhite;     max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        label, select, input, button { display: block; width: 100%; margin-top: 10px; }
+        button { padding: 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Thermodynamic Work Calculator</h2>
+        <label for="process">Select Process:</label>
+        <select id="process" onchange="updateInputFields()">
+            <option value="">Select a process</option>
+            <option value="isobaric">Isobaric</option>
+            <option value="isochoric">Isochoric</option>
+            <option value="isothermal">Isothermal</option>
+        </select>
+
+        <div id="inputFields"></div>
+
+        <button onclick="calculateWork()">Calculate Work Done</button>
+
+        <h3 id="result"></h3>
+    </div>
+
+    <script>
+        function updateInputFields() {
+            const process = document.getElementById("process").value;
+            const inputFields = document.getElementById("inputFields");
+            inputFields.innerHTML = "";
+
+            if (process === "isobaric") {
+                inputFields.innerHTML += `
+                    <label for="pressure">Pressure (P in Pa):</label>
+                    <input type="number" id="pressure" required>
+                    <label for="volumeChange">Change in Volume (ΔV in m³):</label>
+                    <input type="number" id="volumeChange" required>
+                `;
+            } else if (process === "isochoric") {
+                inputFields.innerHTML += `
+                    <p>For an isochoric process, work done is zero as volume does not change.</p>
+                `;
+            } else if (process === "isothermal") {
+                inputFields.innerHTML += `
+                    <label for="n">Number of moles (n):</label>
+                    <input type="number" id="n" required>
+                    <label for="temperature">Temperature (T in K):</label>
+                    <input type="number" id="temperature" required>
+                    <label for="volumeRatio">Ratio of final to initial volume (Vf/Vi):</label>
+                    <input type="number" id="volumeRatio" required>
+                `;
+            }
+        }
+
+        function calculateWork() {
+            const process = document.getElementById("process").value;
+            let workDone = 0;
+            const result = document.getElementById("result");
+
+            if (process === "isobaric") {
+                const P = parseFloat(document.getElementById("pressure").value);
+                const deltaV = parseFloat(document.getElementById("volumeChange").value);
+                workDone = P * deltaV;
+                result.textContent = `Work done (W) in an isobaric process is: ${workDone} J`;
+            } else if (process === "isochoric") {
+                workDone = 0;
+                result.textContent = "Work done (W) in an isochoric process is: 0 J (no volume change)";
+            } else if (process === "isothermal") {
+                const n = parseFloat(document.getElementById("n").value);
+                const T = parseFloat(document.getElementById("temperature").value);
+                const VfVi = parseFloat(document.getElementById("volumeRatio").value);
+                const R = 8.314; // Gas constant in J/(mol*K)
+                if (VfVi <= 0) {
+                    result.textContent = "Error: Volume ratio (Vf/Vi) must be greater than zero.";
+                    return;
+                }
+                workDone = n * R * T * Math.log(VfVi);
+                result.textContent = `Work done (W) in an isothermal process is: ${workDone.toFixed(2)} J`;
+            } else {
+                result.textContent = "Please select a valid process and enter all required values.";
+            }
+        }
+    </script>
+</body>
+</html>
