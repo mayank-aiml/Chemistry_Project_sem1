@@ -1,18 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thermodynamic Work Calculator</title>
     <style>
-        body { background-image: url('chem.jpg'); background-size: cover; background-repeat: no-repeat; background-attachment: fixed; 
-            font-family: Arial, sans-serif; margin: 20px; }
-        .container { background-color:antiquewhite;     max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
-        label, select, input, button { display: block; width: 100%; margin-top: 10px; }
-        button { padding: 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-        button:hover { background-color: #45a049; }
+        body {
+            background-image: url('chem.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .container {
+            background-color: antiquewhite;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        label,
+        select,
+        input,
+        button {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h2>Thermodynamic Work Calculator</h2>
@@ -21,7 +55,8 @@
             <option value="">Select a process</option>
             <option value="isobaric">Isobaric</option>
             <option value="isochoric">Isochoric</option>
-            <option value="isothermal">Isothermal</option>
+            <option value="isothermal Reversible">Isothermal Reversible</option>
+            <option value="isothermal Irreversible">Isothermal Irreversible</option>
         </select>
 
         <div id="inputFields"></div>
@@ -48,14 +83,27 @@
                 inputFields.innerHTML += `
                     <p>For an isochoric process, work done is zero as volume does not change.</p>
                 `;
-            } else if (process === "isothermal") {
+            } else if (process === "isothermal Reversible") {
                 inputFields.innerHTML += `
-                    <label for="n">Number of moles (n):</label>
-                    <input type="number" id="n" required>
-                    <label for="temperature">Temperature (T in K):</label>
-                    <input type="number" id="temperature" required>
-                    <label for="volumeRatio">Ratio of final to initial volume (Vf/Vi):</label>
-                    <input type="number" id="volumeRatio" required>
+                 <label for="n">Number of moles (n):</label>
+                 <input type="number" id="n" required>
+                 <label for="temperature">Temperature (T in K):</label>
+                 <input type="number" id="temperature" required>
+                 <label for="volumeinitial">Initial Volume (Vi):</label>
+                 <input type="number" id="volumeinitial" required>
+                 <label for="volumefinal">Final Volume (Vf):</label>
+                 <input type="number" id="volumefinal" required>
+             `;
+
+
+            } else if (process === "isothermal Irreversible") {
+                inputFields.innerHTML += `
+                    <label for="p">Pressure (p):</label>
+                    <input type="number" id="p" required>
+                    <label for="volumeinitial">Initial Volume (Vi):</label>
+                    <input type="number" id="volumeinitial" required>
+                    <label for="volumefinal">Final Volume (Vf):</label>
+                    <input type="number" id="volumefinal" required>
                 `;
             }
         }
@@ -73,21 +121,44 @@
             } else if (process === "isochoric") {
                 workDone = 0;
                 result.textContent = "Work done (W) in an isochoric process is: 0 J (no volume change)";
-            } else if (process === "isothermal") {
+            } else if (process === "isothermal Reversible") {
                 const n = parseFloat(document.getElementById("n").value);
                 const T = parseFloat(document.getElementById("temperature").value);
-                const VfVi = parseFloat(document.getElementById("volumeRatio").value);
+                const Vf = parseFloat(document.getElementById("volumefinal").value);
+                const Vi = parseFloat(document.getElementById("volumeinitial").value);
                 const R = 8.314; // Gas constant in J/(mol*K)
-                if (VfVi <= 0) {
-                    result.textContent = "Error: Volume ratio (Vf/Vi) must be greater than zero.";
+        
+                if (Vi <= 0 || Vf <= 0 ) {
+                    result.textContent = "Error: Volume must be greater than zero.";
+                    return;
+                } if(T <= 0){
+                    result.textContent = "Error: Temperature must be positive.";
                     return;
                 }
-                workDone = n * R * T * Math.log(VfVi);
+                workDone = n * R * T * Math.log(Vf/Vi);
                 result.textContent = `Work done (W) in an isothermal process is: ${workDone.toFixed(2)} J`;
-            } else {
+            } else if (process === "isothermal Irreversible"){
+                const p = parseFloat(document.getElementById("p").value);
+                const Vi = parseFloat(document.getElementById("volumeinitial").value);
+                const Vf = parseFloat(document.getElementById("volumefinal").value);
+                if (Vi <= 0 || Vf <= 0) {
+                    result.textContent = "Error: Volume must be greater than zero.";
+                    return;
+                }
+                //if(Vf <= Vi){
+                //     result.textContent = "Error: Initial volume must be greater than Final volume.";
+                //     return;
+                //}
+                workDone = p * (Vf - Vi);
+                result.textContent = `Work done (W) in an isothermal process is: ${workDone} J`;
+            }
+            
+            
+            else {
                 result.textContent = "Please select a valid process and enter all required values.";
             }
         }
     </script>
 </body>
+
 </html>
